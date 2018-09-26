@@ -1,0 +1,20 @@
+query LoadGithubRepositories($queryString: String!, $count: Int) {
+  search(query: $queryString, type: REPOSITORY, first: $count) {
+    repositoryCount
+    edges {
+      node {
+        ... on Repository {
+          name
+          owner {
+            login
+            avatarUrl
+          }
+          description
+          forks {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
