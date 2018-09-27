@@ -1,7 +1,8 @@
-query LoadGithubRepositories($queryString: String!, $count: Int) {
-  search(query: $queryString, type: REPOSITORY, first: $count) {
+query LoadGithubRepositories($queryString: String!, $count: Int, $after: String) {
+  search(query: $queryString, type: REPOSITORY, first: $count, after: $after) {
     repositoryCount
     edges {
+      cursor
       node {
         ... on Repository {
           name

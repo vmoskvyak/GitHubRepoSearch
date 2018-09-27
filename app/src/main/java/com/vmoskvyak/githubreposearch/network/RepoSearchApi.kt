@@ -5,6 +5,6 @@ import com.vmoskvyak.githubreposearch.LoadGithubRepositories
 
 interface RepoSearchApi {
 
-    fun getRepositoryByName(name: String): ApolloCall<LoadGithubRepositories.Data>
+    fun getRepositoryByName(name: String, after: String? = null): ApolloCall<LoadGithubRepositories.Data>
 
 }

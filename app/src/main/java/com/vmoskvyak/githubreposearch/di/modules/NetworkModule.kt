@@ -1,7 +1,8 @@
 package com.vmoskvyak.githubreposearch.di.modules
 
 import com.apollographql.apollo.ApolloClient
-import com.google.gson.Gson
+import com.vmoskvyak.githubreposearch.BuildConfig
+import com.vmoskvyak.githubreposearch.di.scopes.AppScope
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -9,30 +10,24 @@ import okhttp3.OkHttpClient
 @Module
 class NetworkModule {
 
-    private val BASE_URL = "https://api.github.com/graphql"
-    private val GITHUB_AUTH_TOKEN = "fa0ec7104d54e21298b05ff349d20ef061076e6b"
-
-    @Provides
-    fun provideGson() : Gson {
-        return Gson()
-    }
-
+    @AppScope
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
                 .addInterceptor {
                     val original = it.request()
                     val builder = original.newBuilder().method(original.method(), original.body())
-                    builder.header("Authorization", "Bearer $GITHUB_AUTH_TOKEN")
+                    builder.header("Authorization", "Bearer ${BuildConfig.GIT_HUB_TOKEN}")
                     it.proceed(builder.build())
                 }
                 .build()
     }
 
+    @AppScope
     @Provides
-    fun provideApoloClient(okHttpClient: OkHttpClient): ApolloClient {
+    fun provideApolloClient(okHttpClient: OkHttpClient): ApolloClient {
         return ApolloClient.builder()
-                .serverUrl(BASE_URL)
+                .serverUrl(BuildConfig.BASE_URL)
                 .okHttpClient(okHttpClient)
                 .build()
     }

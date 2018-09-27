@@ -1,6 +1,6 @@
 package com.vmoskvyak.githubreposearch.di.builder
 
-import com.vmoskvyak.githubreposearch.MainActivity
+import com.vmoskvyak.githubreposearch.ui.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

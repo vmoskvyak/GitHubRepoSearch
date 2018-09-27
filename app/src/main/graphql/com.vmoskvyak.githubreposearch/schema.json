@@ -11636,6 +11636,22 @@
               "deprecationReason": null
             },
             {
+              "name": "viewerCanApplySuggestion",
+              "description": "Whether or not the viewer can apply suggestion.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "viewerCanReact",
               "description": "Can user react to this subject",
               "args": [],
