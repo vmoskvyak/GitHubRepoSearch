@@ -12,22 +12,24 @@
             type="com.vmoskvyak.githubreposearch.ui.fragments.main.SearchGitRepoFragmentViewModel" />
     </data>
 
+
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/no_repositories_found"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="@string/no_repositories_found" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_git_repo_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            app:adapter="@{viewModel.gitRepoAdapter}" />
-
+            app:adapter="@{viewModel.gitRepoAdapter}"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </FrameLayout>
 </layout>

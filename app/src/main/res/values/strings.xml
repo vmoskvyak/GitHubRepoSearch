@@ -2,4 +2,5 @@
     <string name="app_name">GitHubRepoSearch</string>
     <string name="search_git_repo">Enter Repository Name</string>
     <string name="no_repositories_found">No repositories found</string>
+    <string name="count_of_subscribers">Count of Subscribers: %s</string>
 </resources>

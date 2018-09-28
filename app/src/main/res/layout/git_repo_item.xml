@@ -4,14 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
-            name="data"
-            type="com.vmoskvyak.githubreposearch.network.model.GitHubRepoData.RepositoryInfo" />
-
+            name="viewModel"
+            type="com.vmoskvyak.githubreposearch.ui.fragments.main.SearchGitRepoItemViewModel" />
         <variable
-            name="glide"
-            type="com.bumptech.glide.Glide" />
+            name="click"
+            type="com.vmoskvyak.githubreposearch.ui.adapters.GitRepoAdapter.OnGitRepoInfoClickListener"/>
     </data>
 
     <LinearLayout
@@ -19,13 +17,14 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:background="@android:color/white"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:onClick="@{()->click.onGitRepoInfoClick(viewModel)}">
 
         <ImageView
             android:id="@+id/iv_avatafr"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:imageUrl="@{data.avatarUrl}"
+            app:imageUrl="@{viewModel.getAvatarUrl()}"
             tools:ignore="ContentDescription"
             tools:src="@tools:sample/avatars" />
 
@@ -51,7 +50,7 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:lines="1"
-                    android:text="@{data.name}"
+                    android:text="@{viewModel.getName()}"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:text="test" />
@@ -60,7 +59,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_code_fork_symbol"
-                    android:text="@{data.numberOfForks.toString()}"
+                    android:drawablePadding="5dp"
+                    android:text="@{viewModel.getNumberOfForks()}"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:text="20" />
@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:ellipsize="end"
-                android:text="@{data.description}"
+                android:text="@{viewModel.getDescription()}"
                 android:textSize="16sp"
                 tools:text="test" />
         </LinearLayout>

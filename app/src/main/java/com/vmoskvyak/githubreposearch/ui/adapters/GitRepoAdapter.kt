@@ -7,11 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import com.vmoskvyak.githubreposearch.databinding.GitRepoItemBinding
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoData
+import com.vmoskvyak.githubreposearch.ui.fragments.data.GitRepoInfoData
+import com.vmoskvyak.githubreposearch.ui.fragments.main.SearchGitRepoItemViewModel
 
 class GitRepoAdapter : RecyclerView.Adapter<GitRepoAdapter.DataViewHolder>() {
 
     private val gitReposList: MutableList<GitHubRepoData.RepositoryInfo> = ArrayList()
     var gitReposCount = 0
+
+    lateinit var onItemClickListener: OnItemClickListener
 
     fun setData(gitHubRepoData: GitHubRepoData) {
         gitReposList.clear()
@@ -44,13 +48,27 @@ class GitRepoAdapter : RecyclerView.Adapter<GitRepoAdapter.DataViewHolder>() {
 
     override fun onBindViewHolder(holderData: DataViewHolder, position: Int) {
         val repositoryInfo = gitReposList[position]
-        holderData.binding?.data = repositoryInfo
+        holderData.binding?.viewModel = SearchGitRepoItemViewModel(repositoryInfo)
 
+        holderData.binding?.click = object : OnGitRepoInfoClickListener {
+            override fun onGitRepoInfoClick(gitRepoItemViewModel: SearchGitRepoItemViewModel) {
+                onItemClickListener.onItemClick(GitRepoInfoData(
+                        gitRepoItemViewModel.getOwner(), gitRepoItemViewModel.getName(),
+                        gitRepoItemViewModel.getAvatarUrl()))
+            }
+
+        }
     }
 
     class DataViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val binding: GitRepoItemBinding? = DataBindingUtil.bind(view)
+
+    }
+
+    interface OnGitRepoInfoClickListener {
+
+        fun onGitRepoInfoClick(gitRepoItemViewModel: SearchGitRepoItemViewModel)
 
     }
 

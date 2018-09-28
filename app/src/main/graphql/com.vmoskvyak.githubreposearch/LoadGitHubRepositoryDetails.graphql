@@ -1,0 +1,13 @@
+query LoadGithubRepositoryDetails($owner:String!, $name: String!, $count: Int, $after: String) {
+  repository(owner: $owner, name:$name) {
+    watchers(first: $count, after: $after) {
+      totalCount
+      edges {
+        cursor
+        node {
+            name
+        }
+      }
+    }
+  }
+}

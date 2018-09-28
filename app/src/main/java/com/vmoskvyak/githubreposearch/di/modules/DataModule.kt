@@ -7,6 +7,7 @@ import com.vmoskvyak.githubreposearch.network.RepoSearchApi
 import com.vmoskvyak.githubreposearch.network.RepoSearchApiImpl
 import com.vmoskvyak.githubreposearch.repository.GitHubRepo
 import com.vmoskvyak.githubreposearch.repository.GitHubRepoImpl
+import com.vmoskvyak.githubreposearch.viewmodel.GitHubRepoDetailsViewModel
 import com.vmoskvyak.githubreposearch.viewmodel.GitHubRepoViewModel
 import com.vmoskvyak.githubreposearch.viewmodel.ViewModelFactory
 import dagger.Module
@@ -30,6 +31,12 @@ class DataModule {
     @AppScope
     @Provides
     fun provideGitHubRepoViewModel(viewModel: GitHubRepoViewModel): ViewModel {
+        return viewModel
+    }
+
+    @AppScope
+    @Provides
+    fun provideGitHubRepoDetailsViewModel(viewModel: GitHubRepoDetailsViewModel): ViewModel {
         return viewModel
     }
 

@@ -6,7 +6,7 @@
         android:id="@+id/action_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/search_git_repo"
-        app:showAsAction="ifRoom|collapseActionView"
+        app:showAsAction="always"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 
 </menu>
