@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import com.vmoskvyak.githubreposearch.R
 import com.vmoskvyak.githubreposearch.databinding.FragmentDetailsGitRepoBinding
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoDetailsData
+import com.vmoskvyak.githubreposearch.repository.wrapper.Resource
+import com.vmoskvyak.githubreposearch.repository.wrapper.Status
 import com.vmoskvyak.githubreposearch.ui.MainActivity
 import com.vmoskvyak.githubreposearch.ui.adapters.WatchersAdapter
 import com.vmoskvyak.githubreposearch.ui.fragments.BaseFragment
@@ -63,9 +65,14 @@ class DetailsGitRepoFragment : BaseFragment() {
         })
 
         viewModel.getGitHubRepositoryDetails(repoInfoData.owner, repoInfoData.name)
-                .observe(this, Observer<GitHubRepoDetailsData> {
-                    detailsGitRepoFragmentViewModel.setCountOfSubscribers(it?.totalCount ?: 0)
-                    it?.watchers?.let {
+                .observe(this, Observer<Resource<GitHubRepoDetailsData>> {
+                    if (it?.status == Status.ERROR) {
+                        (activity as MainActivity).showErrorDialog(it.message)
+                        return@Observer
+                    }
+
+                    detailsGitRepoFragmentViewModel.setCountOfSubscribers(it?.data?.totalCount ?: 0)
+                    it?.data?.watchers?.let {
                         list -> watchersAdapter.setData(list)
                     }
                 })
@@ -83,8 +90,12 @@ class DetailsGitRepoFragment : BaseFragment() {
                     totalItemCount - 1)
 
             viewModel.getGitHubRepositoryDetails(repoInfoData.owner, repoInfoData.name, item.cursor)
-                    .observe(activity as LifecycleOwner, Observer<GitHubRepoDetailsData> {
-                        it?.watchers?.let {
+                    .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoDetailsData>> {
+                        if (it?.status == Status.ERROR) {
+                            (activity as MainActivity).showErrorDialog(it.message)
+                            return@Observer
+                        }
+                        it?.data?.watchers?.let {
                             list -> watchersAdapter.addItems(list)
                         }
                     })

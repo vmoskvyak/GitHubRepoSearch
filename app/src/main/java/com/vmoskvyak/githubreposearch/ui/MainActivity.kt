@@ -1,6 +1,7 @@
 package com.vmoskvyak.githubreposearch.ui
 
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
 import com.vmoskvyak.githubreposearch.R
 import com.vmoskvyak.githubreposearch.ui.fragments.main.SearchGitRepoFragment
@@ -36,6 +37,16 @@ class MainActivity : DaggerAppCompatActivity() {
                 .beginTransaction()
                 .replace(R.id.fl_container, SearchGitRepoFragment(), SearchGitRepoFragment.TAG)
                 .commit()
+    }
+
+    fun showErrorDialog(message: String?) {
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle("Error")
+        alertDialog.setMessage(message)
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        alertDialog.show()
     }
 
 }

@@ -13,6 +13,9 @@ import android.view.*
 import com.vmoskvyak.githubreposearch.R
 import com.vmoskvyak.githubreposearch.databinding.FragmentSearchGitRepoBinding
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoData
+import com.vmoskvyak.githubreposearch.repository.wrapper.Resource
+import com.vmoskvyak.githubreposearch.repository.wrapper.Status
+import com.vmoskvyak.githubreposearch.ui.MainActivity
 import com.vmoskvyak.githubreposearch.ui.adapters.GitRepoAdapter
 import com.vmoskvyak.githubreposearch.ui.adapters.OnItemClickListener
 import com.vmoskvyak.githubreposearch.ui.fragments.BaseFragment
@@ -36,15 +39,15 @@ class SearchGitRepoFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(SEARCH_QUERY_ARG)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val binding : FragmentSearchGitRepoBinding = DataBindingUtil.inflate(
-                inflater ,R.layout.fragment_search_git_repo,container , false)
+        val binding: FragmentSearchGitRepoBinding = DataBindingUtil.inflate(
+                inflater, R.layout.fragment_search_git_repo, container, false)
 
         val searchGitRepoFragmentViewModel = SearchGitRepoFragmentViewModel()
         gitRepoAdapter = searchGitRepoFragmentViewModel.gitRepoAdapter
@@ -102,8 +105,13 @@ class SearchGitRepoFragment : BaseFragment() {
 
             viewModel.searchGitHubRepository(
                     searchView.query.toString(), itemByPosition.cursor)
-                    .observe(activity as LifecycleOwner, Observer<GitHubRepoData> {
-                        it?.repositoryInfo?.let { it1 -> gitRepoAdapter.addItems(it1) }
+                    .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoData>> {
+                        if (it?.status == Status.ERROR) {
+                            (activity as MainActivity).showErrorDialog(it.message)
+                            return@Observer
+                        }
+
+                        it?.data?.repositoryInfo?.let { it1 -> gitRepoAdapter.addItems(it1) }
                     })
         }
     }
@@ -146,8 +154,15 @@ class SearchGitRepoFragment : BaseFragment() {
 
     private fun sendSearchRequest(newText: String) {
         viewModel.searchGitHubRepository(newText)
-                .observe(activity as LifecycleOwner, Observer<GitHubRepoData> {
-                    it?.let { gitHubRepoData -> gitRepoAdapter.setData(gitHubRepoData) }
+                .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoData>> {
+                    if (it?.status == Status.ERROR) {
+                        (activity as MainActivity).showErrorDialog(it.message)
+                        return@Observer
+                    }
+
+                    it?.let { gitHubRepoData ->
+                        gitHubRepoData.data?.let { data -> gitRepoAdapter.setData(data) }
+                    }
                 })
     }
 
