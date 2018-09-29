@@ -3,12 +3,20 @@ package com.vmoskvyak.githubreposearch.di.modules
 import com.apollographql.apollo.ApolloClient
 import com.vmoskvyak.githubreposearch.BuildConfig
 import com.vmoskvyak.githubreposearch.di.scopes.AppScope
+import com.vmoskvyak.githubreposearch.network.api.RepoSearchApi
+import com.vmoskvyak.githubreposearch.network.api.RepoSearchApiImpl
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 
 @Module
 class NetworkModule {
+
+    @AppScope
+    @Provides
+    fun provideRepoSearchApi(repoSearchApi: RepoSearchApiImpl): RepoSearchApi {
+        return repoSearchApi
+    }
 
     @AppScope
     @Provides
