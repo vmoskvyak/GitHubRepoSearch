@@ -68,6 +68,8 @@ dependencies {
     implementation "com.android.support:design:27.1.1"
 
     implementation 'com.android.support:cardview-v7:27.1.1'
+
+    implementation 'android.arch.paging:runtime:1.0.1'
 }
 
 kotlin {

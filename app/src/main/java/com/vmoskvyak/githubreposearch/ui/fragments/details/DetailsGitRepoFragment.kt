@@ -1,19 +1,19 @@
 package com.vmoskvyak.githubreposearch.ui.fragments.details
 
-import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
+import android.arch.paging.PagedList
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import com.vmoskvyak.githubreposearch.R
 import com.vmoskvyak.githubreposearch.databinding.FragmentDetailsGitRepoBinding
+import com.vmoskvyak.githubreposearch.network.RequestStatus
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoDetailsData
-import com.vmoskvyak.githubreposearch.repository.wrapper.Resource
-import com.vmoskvyak.githubreposearch.repository.wrapper.Status
 import com.vmoskvyak.githubreposearch.ui.MainActivity
 import com.vmoskvyak.githubreposearch.ui.adapters.WatchersAdapter
 import com.vmoskvyak.githubreposearch.ui.fragments.BaseFragment
@@ -30,6 +30,27 @@ class DetailsGitRepoFragment : BaseFragment() {
     private lateinit var detailsGitRepoFragmentViewModel: DetailsGitRepoFragmentViewModel
 
     private lateinit var repoInfoData: GitRepoInfoData
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view!!.windowToken, 0)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel.requestStatus.observe(this, Observer<RequestStatus> {
+            if (it?.status == RequestStatus.Status.ERROR) {
+                (activity as MainActivity).showErrorDialog(it.message)
+            }
+        } )
+
+        viewModel.countOfSubscribers.observe(this, Observer<Int> {
+            detailsGitRepoFragmentViewModel.countOfSubscribers.set(it ?: 0)
+        })
+    }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -58,48 +79,10 @@ class DetailsGitRepoFragment : BaseFragment() {
         val layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
 
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                requestPagination(layoutManager)
-            }
-        })
-
         viewModel.getGitHubRepositoryDetails(repoInfoData.owner, repoInfoData.name)
-                .observe(this, Observer<Resource<GitHubRepoDetailsData>> {
-                    if (it?.status == Status.ERROR) {
-                        (activity as MainActivity).showErrorDialog(it.message)
-                        return@Observer
-                    }
-
-                    detailsGitRepoFragmentViewModel.setCountOfSubscribers(it?.data?.totalCount ?: 0)
-                    it?.data?.watchers?.let {
-                        list -> watchersAdapter.setData(list)
-                    }
+                .observe(this, Observer<PagedList<GitHubRepoDetailsData.Watcher>> {
+                    watchersAdapter.submitList(it)
                 })
-    }
-
-    private fun requestPagination(layoutManager: LinearLayoutManager) {
-        val visibleItemCount = layoutManager.childCount
-        val totalItemCount = layoutManager.itemCount
-        val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-
-        if (visibleItemCount + pastVisibleItems >= totalItemCount) {
-            if (totalItemCount == detailsGitRepoFragmentViewModel.countOfSubscribers.get()) return
-
-            val item = watchersAdapter.getItemByPosition(
-                    totalItemCount - 1)
-
-            viewModel.getGitHubRepositoryDetails(repoInfoData.owner, repoInfoData.name, item.cursor)
-                    .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoDetailsData>> {
-                        if (it?.status == Status.ERROR) {
-                            (activity as MainActivity).showErrorDialog(it.message)
-                            return@Observer
-                        }
-                        it?.data?.watchers?.let {
-                            list -> watchersAdapter.addItems(list)
-                        }
-                    })
-        }
     }
 
     companion object {

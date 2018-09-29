@@ -1,4 +1,4 @@
-package com.vmoskvyak.githubreposearch.network
+package com.vmoskvyak.githubreposearch.network.api
 
 import com.apollographql.apollo.ApolloCall
 import com.vmoskvyak.githubreposearch.LoadGithubRepositories

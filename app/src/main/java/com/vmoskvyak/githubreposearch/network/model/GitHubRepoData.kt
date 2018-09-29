@@ -1,6 +1,5 @@
 package com.vmoskvyak.githubreposearch.network.model
 
-
 class GitHubRepoData(val repositoryCount: Int?, val repositoryInfo: List<RepositoryInfo>) {
 
     class RepositoryInfo(

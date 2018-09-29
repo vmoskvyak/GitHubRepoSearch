@@ -3,18 +3,17 @@ package com.vmoskvyak.githubreposearch.ui.fragments.main
 import android.app.SearchManager
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
+import android.arch.paging.PagedList
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import com.vmoskvyak.githubreposearch.R
 import com.vmoskvyak.githubreposearch.databinding.FragmentSearchGitRepoBinding
+import com.vmoskvyak.githubreposearch.network.RequestStatus
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoData
-import com.vmoskvyak.githubreposearch.repository.wrapper.Resource
-import com.vmoskvyak.githubreposearch.repository.wrapper.Status
 import com.vmoskvyak.githubreposearch.ui.MainActivity
 import com.vmoskvyak.githubreposearch.ui.adapters.GitRepoAdapter
 import com.vmoskvyak.githubreposearch.ui.adapters.OnItemClickListener
@@ -23,7 +22,6 @@ import com.vmoskvyak.githubreposearch.ui.fragments.data.GitRepoInfoData
 import com.vmoskvyak.githubreposearch.ui.fragments.details.DetailsGitRepoFragment
 import com.vmoskvyak.githubreposearch.viewmodel.GitHubRepoViewModel
 import javax.inject.Inject
-
 
 class SearchGitRepoFragment : BaseFragment() {
 
@@ -42,6 +40,12 @@ class SearchGitRepoFragment : BaseFragment() {
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(SEARCH_QUERY_ARG)
         }
+
+        viewModel.requestStatus.observe(this, Observer<RequestStatus> {
+            if (it?.status == RequestStatus.Status.ERROR) {
+                (activity as MainActivity).showErrorDialog(it.message)
+            }
+        } )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -82,38 +86,6 @@ class SearchGitRepoFragment : BaseFragment() {
         val layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
         recyclerView.isNestedScrollingEnabled = false
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                requestPagination(layoutManager)
-            }
-        })
-    }
-
-    private fun requestPagination(layoutManager: LinearLayoutManager) {
-        val visibleItemCount = layoutManager.childCount
-        val totalItemCount = layoutManager.itemCount
-        val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-
-        if (visibleItemCount + pastVisibleItems >= totalItemCount) {
-
-            if (searchView.query.toString().isEmpty()) return
-            if (totalItemCount == gitRepoAdapter.gitReposCount) return
-
-            val itemByPosition = gitRepoAdapter.getItemByPosition(
-                    totalItemCount - 1)
-
-            viewModel.searchGitHubRepository(
-                    searchView.query.toString(), itemByPosition.cursor)
-                    .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoData>> {
-                        if (it?.status == Status.ERROR) {
-                            (activity as MainActivity).showErrorDialog(it.message)
-                            return@Observer
-                        }
-
-                        it?.data?.repositoryInfo?.let { it1 -> gitRepoAdapter.addItems(it1) }
-                    })
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -154,15 +126,9 @@ class SearchGitRepoFragment : BaseFragment() {
 
     private fun sendSearchRequest(newText: String) {
         viewModel.searchGitHubRepository(newText)
-                .observe(activity as LifecycleOwner, Observer<Resource<GitHubRepoData>> {
-                    if (it?.status == Status.ERROR) {
-                        (activity as MainActivity).showErrorDialog(it.message)
-                        return@Observer
-                    }
-
-                    it?.let { gitHubRepoData ->
-                        gitHubRepoData.data?.let { data -> gitRepoAdapter.setData(data) }
-                    }
+                .observe(activity as LifecycleOwner,
+                        Observer<PagedList<GitHubRepoData.RepositoryInfo>> {
+                    gitRepoAdapter.submitList(it)
                 })
     }
 

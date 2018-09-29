@@ -1,6 +1,8 @@
 package com.vmoskvyak.githubreposearch.ui.adapters
 
+import android.arch.paging.PagedListAdapter
 import android.databinding.DataBindingUtil
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -9,26 +11,8 @@ import com.vmoskvyak.githubreposearch.databinding.WatcherItemBinding
 import com.vmoskvyak.githubreposearch.network.model.GitHubRepoDetailsData
 import com.vmoskvyak.githubreposearch.ui.fragments.details.WatcherItemViewModel
 
-class WatchersAdapter : RecyclerView.Adapter<WatchersAdapter.WatchersViewHolder>() {
-
-    private val watchersList: MutableList<GitHubRepoDetailsData.Watcher> = ArrayList()
-
-    fun setData(dataList: List<GitHubRepoDetailsData.Watcher>) {
-        watchersList.clear()
-        watchersList.addAll(dataList)
-
-        notifyDataSetChanged()
-    }
-
-    fun addItems(dataList: List<GitHubRepoDetailsData.Watcher>) {
-        watchersList.addAll(dataList)
-
-        notifyDataSetChanged()
-    }
-
-    fun getItemByPosition(position: Int): GitHubRepoDetailsData.Watcher {
-        return watchersList[position]
-    }
+class WatchersAdapter : PagedListAdapter<GitHubRepoDetailsData.Watcher,
+        WatchersAdapter.WatchersViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchersViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -37,13 +21,9 @@ class WatchersAdapter : RecyclerView.Adapter<WatchersAdapter.WatchersViewHolder>
         return WatchersAdapter.WatchersViewHolder(binding.root)
     }
 
-    override fun getItemCount(): Int {
-        return watchersList.size
-    }
-
     override fun onBindViewHolder(holder: WatchersViewHolder, position: Int) {
-        val watcher = watchersList[position]
-        holder.binding?.viewModel = WatcherItemViewModel(watcher)
+        val watcher = getItem(position)
+        holder.binding?.viewModel = watcher?.let { WatcherItemViewModel(it) }
     }
 
     class WatchersViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -51,4 +31,20 @@ class WatchersAdapter : RecyclerView.Adapter<WatchersAdapter.WatchersViewHolder>
         val binding: WatcherItemBinding? = DataBindingUtil.bind(view)
 
     }
+
+    companion object {
+        var DIFF_CALLBACK: DiffUtil.ItemCallback<GitHubRepoDetailsData.Watcher> =
+                object : DiffUtil.ItemCallback<GitHubRepoDetailsData.Watcher>() {
+                    override fun areItemsTheSame(oldItem: GitHubRepoDetailsData.Watcher,
+                                                 newItem: GitHubRepoDetailsData.Watcher): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areContentsTheSame(oldItem: GitHubRepoDetailsData.Watcher,
+                                                    newItem: GitHubRepoDetailsData.Watcher): Boolean {
+                        return oldItem == newItem
+                    }
+                }
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.vmoskvyak.githubreposearch.ui
 
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
 import com.vmoskvyak.githubreposearch.R
+import com.vmoskvyak.githubreposearch.databinding.ActivityMainBinding
 import com.vmoskvyak.githubreposearch.ui.fragments.main.SearchGitRepoFragment
 import dagger.android.support.DaggerAppCompatActivity
 
@@ -13,9 +15,11 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        toolbar = findViewById(R.id.toolbar)
+        val binding: ActivityMainBinding = DataBindingUtil.setContentView(
+                this, R.layout.activity_main)
+
+        toolbar = binding.toolbar
         setSupportActionBar(toolbar)
 
         toolbar.setNavigationOnClickListener { onBackPressed() }
